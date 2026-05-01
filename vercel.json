@@ -1,1 +1,9 @@
-
+{
+  "buildCommand": "echo 'Static site, no build needed'",
+  "outputDirectory": ".",
+  "routes": [
+    { "src": "^/api/(.*)$", "dest": "/api/$1" },
+    { "src": "^/whether\\.html$", "dest": "/whether.html" },
+    { "src": "^/$", "dest": "/whether.html" }
+  ]
+}
