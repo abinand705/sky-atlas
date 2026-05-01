@@ -1,0 +1,17 @@
+[build]
+  command = "echo 'Static site, no build needed'"
+  publish = "."
+
+[[redirects]]
+  from = "/api/openweather"
+  to = "/.netlify/functions/openweather"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/"
+  to = "/whether.html"
+  status = 200
+
+[functions]
+  directory = "netlify/functions"

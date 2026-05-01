@@ -1,0 +1,14 @@
+{
+  "buildCommand": "echo 'Static site, no build needed'",
+  "outputDirectory": ".",
+  "env": {
+    "OPENWEATHERMAP_API_KEY": {
+      "description": "Your OpenWeatherMap API Key"
+    }
+  },
+  "routes": [
+    { "src": "^/api/(.*)$", "dest": "/api/$1" },
+    { "src": "^/whether\\.html$", "dest": "/whether.html" },
+    { "src": "^/$", "dest": "/whether.html" }
+  ]
+}

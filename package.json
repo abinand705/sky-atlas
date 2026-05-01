@@ -1,0 +1,23 @@
+{
+  "name": "skycast-atlas",
+  "version": "1.0.0",
+  "description": "Real-time weather forecast with photorealistic sky simulations",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "weather",
+    "forecast",
+    "openweathermap",
+    "sky",
+    "animation"
+  ],
+  "author": "You",
+  "license": "MIT",
+  "engines": {
+    "node": "18.x || 20.x"
+  }
+}

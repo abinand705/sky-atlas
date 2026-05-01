@@ -1,0 +1,1959 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="clear-day">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Skycast Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ════════════════════════════════════════════════════════
+   DESIGN TOKEN SYSTEM — 8 photorealistic sky palettes
+════════════════════════════════════════════════════════ */
+:root {
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-silk: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* CLEAR DAY — saturated blue zenith, warm horizon */
+[data-theme="clear-day"] {
+  --sky-z: #0b3d7a; --sky-m: #1565c0; --sky-h: #4fc3f7; --sky-hz: #b3e5fc;
+  --sun-c: #fff176; --sun-glow: #ffe082; --sun-ray: rgba(255,236,64,0.13);
+  --horizon-bloom: radial-gradient(ellipse 100% 45% at 50% 100%,rgba(255,220,130,0.55),rgba(100,200,255,0.18) 55%,transparent 75%);
+  --atmo: radial-gradient(ellipse 80% 60% at 50% 0%,rgba(180,220,255,0.22),transparent 65%);
+  --txt: #0a1929; --txt-m: rgba(10,25,41,0.58); --txt-s: rgba(10,25,41,0.38);
+  --gl-bg: rgba(255,255,255,0.22); --gl-bg2: rgba(255,255,255,0.32);
+  --gl-b: rgba(255,255,255,0.65); --gl-b2: rgba(255,255,255,0.85);
+  --gl-shine: rgba(255,255,255,0.9); --gl-shd: rgba(15,60,150,0.22);
+  --gl-refr: rgba(200,230,255,0.12); --gl-fringe: rgba(150,200,255,0.08);
+  --accent: #f57c00; --accent2: #ffa726;
+  --cloud-lt: #fff; --cloud-dk: #c5ddf5; --cloud-rim: rgba(255,255,255,0.95);
+  --terrain: #1b5e20; --terrain2: #2e7d32;
+}
+/* CLEAR NIGHT */
+[data-theme="clear-night"] {
+  --sky-z: #020714; --sky-m: #050f28; --sky-h: #0d1f50; --sky-hz: #162560;
+  --sun-c: #c8d8ff; --horizon-bloom: radial-gradient(ellipse 80% 40% at 50% 100%,rgba(40,70,160,0.45),transparent 65%);
+  --atmo: radial-gradient(ellipse 70% 55% at 50% 0%,rgba(30,60,140,0.18),transparent 65%);
+  --txt: #e8f0ff; --txt-m: rgba(200,216,255,0.6); --txt-s: rgba(170,196,255,0.4);
+  --gl-bg: rgba(8,18,55,0.48); --gl-bg2: rgba(12,24,68,0.58);
+  --gl-b: rgba(80,120,220,0.32); --gl-b2: rgba(120,160,255,0.45);
+  --gl-shine: rgba(150,185,255,0.2); --gl-shd: rgba(0,0,30,0.65);
+  --gl-refr: rgba(80,120,220,0.1); --gl-fringe: rgba(100,150,255,0.07);
+  --accent: #7eb3ff; --accent2: #b0ccff;
+  --cloud-lt: #1e2e6a; --cloud-dk: #0e172e; --cloud-rim: rgba(100,140,255,0.3);
+  --terrain: #050a05; --terrain2: #0a120a;
+}
+/* CLOUDY */
+[data-theme="cloudy"] {
+  --sky-z: #37474f; --sky-m: #546e7a; --sky-h: #90a4ae; --sky-hz: #cfd8dc;
+  --horizon-bloom: radial-gradient(ellipse 90% 40% at 50% 100%,rgba(200,215,225,0.4),transparent 60%);
+  --atmo: radial-gradient(ellipse 80% 50% at 50% 0%,rgba(200,215,225,0.12),transparent 60%);
+  --txt: #1a2631; --txt-m: rgba(26,38,49,0.55); --txt-s: rgba(26,38,49,0.35);
+  --gl-bg: rgba(200,215,222,0.3); --gl-bg2: rgba(210,225,232,0.4);
+  --gl-b: rgba(255,255,255,0.55); --gl-b2: rgba(255,255,255,0.72);
+  --gl-shine: rgba(255,255,255,0.8); --gl-shd: rgba(50,70,80,0.25);
+  --gl-refr: rgba(180,210,225,0.1); --gl-fringe: rgba(200,220,230,0.08);
+  --accent: #455a64; --accent2: #607d8b;
+  --cloud-lt: #ecf0f2; --cloud-dk: #9eb5c0; --cloud-rim: rgba(255,255,255,0.7);
+  --terrain: #1a2e1a; --terrain2: #243624;
+}
+/* RAIN */
+[data-theme="rain"] {
+  --sky-z: #102030; --sky-m: #1a3045; --sky-h: #2e4a60; --sky-hz: #3d5a70;
+  --horizon-bloom: radial-gradient(ellipse 85% 40% at 50% 100%,rgba(60,110,150,0.5),transparent 65%);
+  --atmo: radial-gradient(ellipse 70% 50% at 50% 0%,rgba(40,80,120,0.2),transparent 65%);
+  --txt: #d0e8f8; --txt-m: rgba(190,220,240,0.6); --txt-s: rgba(160,200,225,0.4);
+  --gl-bg: rgba(20,45,70,0.46); --gl-bg2: rgba(25,55,82,0.56);
+  --gl-b: rgba(80,150,200,0.32); --gl-b2: rgba(120,180,220,0.45);
+  --gl-shine: rgba(140,200,240,0.22); --gl-shd: rgba(0,15,40,0.55);
+  --gl-refr: rgba(60,140,200,0.1); --gl-fringe: rgba(80,160,220,0.07);
+  --accent: #4fc3f7; --accent2: #81d4fa;
+  --cloud-lt: #2c4558; --cloud-dk: #152230; --cloud-rim: rgba(100,180,220,0.3);
+  --terrain: #0d1a0d; --terrain2: #14241a;
+}
+/* STORM */
+[data-theme="storm"] {
+  --sky-z: #070810; --sky-m: #0e1020; --sky-h: #161830; --sky-hz: #1c2040;
+  --horizon-bloom: radial-gradient(ellipse 85% 40% at 50% 100%,rgba(30,40,90,0.55),transparent 65%);
+  --atmo: radial-gradient(ellipse 70% 50% at 50% 0%,rgba(20,28,70,0.2),transparent 65%);
+  --txt: #eeeeff; --txt-m: rgba(210,215,255,0.6); --txt-s: rgba(180,185,240,0.4);
+  --gl-bg: rgba(8,10,28,0.55); --gl-bg2: rgba(12,14,38,0.65);
+  --gl-b: rgba(80,85,180,0.32); --gl-b2: rgba(120,125,220,0.42);
+  --gl-shine: rgba(140,145,255,0.18); --gl-shd: rgba(0,0,18,0.7);
+  --gl-refr: rgba(80,80,200,0.1); --gl-fringe: rgba(100,100,220,0.06);
+  --accent: #ffd600; --accent2: #ffea00;
+  --cloud-lt: #14162a; --cloud-dk: #08090e; --cloud-rim: rgba(80,80,180,0.3);
+  --terrain: #050506; --terrain2: #0a0a0c;
+}
+/* SNOW */
+[data-theme="snow"] {
+  --sky-z: #6b95b8; --sky-m: #90b8d5; --sky-h: #bed6ea; --sky-hz: #deedf7;
+  --sun-c: #e8f5ff; --sun-glow: #d0e8f8;
+  --horizon-bloom: radial-gradient(ellipse 90% 45% at 50% 100%,rgba(220,240,255,0.5),transparent 65%);
+  --atmo: radial-gradient(ellipse 80% 55% at 50% 0%,rgba(200,225,245,0.15),transparent 65%);
+  --txt: #152535; --txt-m: rgba(21,37,53,0.55); --txt-s: rgba(21,37,53,0.35);
+  --gl-bg: rgba(210,230,248,0.35); --gl-bg2: rgba(220,238,255,0.45);
+  --gl-b: rgba(255,255,255,0.72); --gl-b2: rgba(255,255,255,0.88);
+  --gl-shine: rgba(255,255,255,0.92); --gl-shd: rgba(80,130,175,0.2);
+  --gl-refr: rgba(180,215,245,0.12); --gl-fringe: rgba(200,230,250,0.08);
+  --accent: #0288d1; --accent2: #03a9f4;
+  --cloud-lt: #f0f8ff; --cloud-dk: #c8dcee; --cloud-rim: rgba(255,255,255,0.95);
+  --terrain: #e8f5f8; --terrain2: #d0e8f0;
+}
+/* MIST */
+[data-theme="mist"] {
+  --sky-z: #7a6d60; --sky-m: #9c9080; --sky-h: #bcb3a8; --sky-hz: #d8d0c8;
+  --horizon-bloom: radial-gradient(ellipse 90% 45% at 50% 100%,rgba(240,230,218,0.55),transparent 65%);
+  --atmo: radial-gradient(ellipse 80% 55% at 50% 0%,rgba(220,210,198,0.18),transparent 65%);
+  --txt: #2a1e14; --txt-m: rgba(42,30,20,0.55); --txt-s: rgba(42,30,20,0.35);
+  --gl-bg: rgba(200,190,178,0.32); --gl-bg2: rgba(210,200,188,0.42);
+  --gl-b: rgba(255,248,240,0.6); --gl-b2: rgba(255,252,245,0.75);
+  --gl-shine: rgba(255,252,248,0.88); --gl-shd: rgba(60,44,32,0.2);
+  --gl-refr: rgba(200,188,175,0.1); --gl-fringe: rgba(220,210,198,0.08);
+  --accent: #8d6e63; --accent2: #a1887f;
+  --cloud-lt: #ede8e2; --cloud-dk: #b8b0a5; --cloud-rim: rgba(255,248,240,0.8);
+  --terrain: #2e220e; --terrain2: #3d2e12;
+}
+/* SUNSET */
+[data-theme="sunset"] {
+  --sky-z: #1a0030; --sky-m: #7b1560; --sky-h: #e03018; --sky-hz: #ff8f20;
+  --sun-c: #fff068; --sun-glow: #ffcc44; --sun-ray: rgba(255,180,30,0.18);
+  --horizon-bloom: radial-gradient(ellipse 100% 50% at 50% 100%,rgba(255,160,40,0.75),rgba(220,50,20,0.4) 40%,transparent 65%);
+  --atmo: radial-gradient(ellipse 80% 55% at 50% 0%,rgba(120,20,80,0.25),transparent 65%);
+  --txt: #fff0e0; --txt-m: rgba(255,230,200,0.65); --txt-s: rgba(255,210,170,0.45);
+  --gl-bg: rgba(55,10,30,0.42); --gl-bg2: rgba(70,15,38,0.52);
+  --gl-b: rgba(255,140,60,0.38); --gl-b2: rgba(255,180,100,0.52);
+  --gl-shine: rgba(255,220,140,0.28); --gl-shd: rgba(25,0,10,0.6);
+  --gl-refr: rgba(255,100,30,0.12); --gl-fringe: rgba(255,150,50,0.08);
+  --accent: #ff6d00; --accent2: #ff9100;
+  --cloud-lt: #ff7040; --cloud-dk: #881830; --cloud-rim: rgba(255,200,100,0.55);
+  --terrain: #1a0808; --terrain2: #2a0e0e;
+}
+
+/* ════════════════════════════════════════════════════════
+   RESET
+════════════════════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;border:0;}
+html,body{height:100%;overflow-x:hidden;}
+body{
+  font-family:'Plus Jakarta Sans',system-ui,sans-serif;
+  min-height:100vh;
+  color:var(--txt);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+.serif{font-family:'Playfair Display',Georgia,serif;}
+.serif-i{font-family:'Playfair Display',Georgia,serif;font-style:italic;}
+
+/* ════════════════════════════════════════════════════════
+   PHOTOREALISTIC SKY BACKGROUND
+   Multi-layer atmospheric simulation:
+   1. Rayleigh scattering gradient (zenith→horizon)
+   2. Atmospheric glow dome (limb brightening)
+   3. Mie scattering horizon bloom
+   4. Aerosol vignette + noise grain
+════════════════════════════════════════════════════════ */
+body {
+  background:
+    linear-gradient(180deg,
+      var(--sky-z) 0%,
+      var(--sky-m) 32%,
+      var(--sky-h) 65%,
+      var(--sky-hz) 100%);
+  background-attachment: fixed;
+  transition: background 2.4s var(--ease-out);
+}
+
+#sky-wrap {
+  position: fixed; inset: 0; z-index: -10;
+  pointer-events: none; overflow: hidden;
+  transform: translateZ(0); contain: layout paint;
+}
+/* Atmospheric dome glow */
+#sky-atmo {
+  position:absolute;inset:0;
+  background: var(--atmo);
+  transition: background 2.4s var(--ease-out);
+}
+/* Horizon Mie scattering bloom */
+#sky-bloom {
+  position:absolute;inset:0;
+  background: var(--horizon-bloom);
+  transition: background 2.4s var(--ease-out);
+}
+/* Rayleigh limb darkening at zenith edges */
+#sky-limb {
+  position:absolute;inset:0;
+  background: radial-gradient(ellipse 130% 80% at 50% 0%,transparent 48%,rgba(0,0,0,0.12) 80%);
+}
+/* Cinematic depth vignette */
+#sky-vignette {
+  position:absolute;inset:0;
+  background: radial-gradient(ellipse 120% 110% at 50% 50%,transparent 42%,rgba(0,0,0,0.28) 100%);
+}
+/* Fine film grain for texture */
+#sky-grain {
+  position:absolute;inset:0;opacity:.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 300 300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-size: 300px 300px;
+}
+/* SVG sky canvas for procedural elements */
+#sky-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
+/* Landscape / terrain */
+#sky-terrain{position:absolute;inset:0;width:100%;height:100%;overflow:visible;}
+
+/* ════════════════════════════════════════════════════════
+   TRUE LIQUID GLASS SYSTEM
+   Implements multi-layer optical physics:
+   - Backdrop blur + saturation (environment map)
+   - Top specular caustic (Phong highlight)
+   - Edge refraction fringe (chromatic aberration)
+   - Inner shadow for depth
+   - Bottom retroreflection
+════════════════════════════════════════════════════════ */
+.glass {
+  position: relative;
+  background: var(--gl-bg);
+  backdrop-filter: blur(32px) saturate(2.1) brightness(1.08) contrast(1.05) drop-shadow(0 8px 32px rgba(0,0,0,0.08));
+  -webkit-backdrop-filter: blur(32px) saturate(2.1) brightness(1.08) contrast(1.05);
+  border: 1px solid var(--gl-b);
+  isolation: isolate;
+  overflow: hidden;
+  transition:
+    background 0.5s var(--ease-silk),
+    border-color 0.5s var(--ease-silk),
+    box-shadow 0.4s var(--ease-silk);
+}
+.glass::before {
+  /* Top specular caustic — the "wet look" */
+  content:''; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:
+    linear-gradient(135deg,
+      var(--gl-shine) 0%,
+      rgba(255,255,255,0.1) 30%,
+      transparent 55%,
+      var(--gl-refr) 75%,
+      rgba(255,255,255,0.04) 100%);
+  border-radius: inherit;
+  transition: background 0.5s var(--ease-silk);
+}
+.glass::after {
+  /* Retroreflective bottom edge highlight */
+  content:''; position:absolute; left:8%; right:8%; bottom:0; height:1px; z-index:2; pointer-events:none;
+  background: linear-gradient(90deg, transparent 0%, var(--gl-b2) 35%, var(--gl-shine) 50%, var(--gl-b2) 65%, transparent 100%);
+  opacity: 0.65;
+  border-radius: 0 0 inherit inherit;
+  transition: background 0.5s var(--ease-silk);
+}
+.glass-inner { position: relative; z-index: 3; }
+
+/* Glass shadow — realistic caustic shadow cast */
+.glass-shadow {
+  box-shadow:
+    0 1px 0 0 var(--gl-b) inset,
+    0 -2px 8px 0 rgba(0,0,0,0.08) inset,
+    1px 0 0 0 rgba(255,255,255,0.14) inset,
+    0 16px 56px -14px var(--gl-shd),
+    0 6px 16px -6px rgba(0,0,0,0.22),
+    0 0 0 0.75px var(--gl-fringe);
+  transition: box-shadow 0.4s var(--ease-silk);
+}
+
+/* Denser glass variant */
+.glass-dense {
+  background: var(--gl-bg2);
+  backdrop-filter: blur(40px) saturate(2.3) brightness(1.09) contrast(1.06) drop-shadow(0 12px 40px rgba(0,0,0,0.1));
+  -webkit-backdrop-filter: blur(40px) saturate(2.3) brightness(1.09) contrast(1.06);
+  border: 1.5px solid var(--gl-b2);
+}
+
+/* Pill glass for buttons/tags */
+.glass-pill {
+  background: var(--gl-bg);
+  backdrop-filter: blur(20px) saturate(1.7) brightness(1.05);
+  -webkit-backdrop-filter: blur(20px) saturate(1.7) brightness(1.05);
+  border: 1px solid var(--gl-b);
+  border-radius: 9999px;
+  transition:
+    background 0.3s var(--ease-silk),
+    transform 0.35s var(--ease-spring),
+    box-shadow 0.3s var(--ease-silk);
+}
+.glass-pill::before {
+  content:''; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background: linear-gradient(160deg, var(--gl-shine) 0%, transparent 50%);
+  border-radius: inherit;
+}
+.glass-pill:hover {
+  transform: scale(1.05) translateY(-1px);
+  box-shadow: 0 8px 32px -8px var(--gl-shd), 0 2px 8px -2px rgba(0,0,0,0.15);
+}
+.glass-pill:active { transform: scale(0.97) translateY(0); }
+
+/* ════════════════════════════════════════════════════════
+   TYPOGRAPHY
+════════════════════════════════════════════════════════ */
+.txt { color: var(--txt); }
+.txt-m { color: var(--txt-m); }
+.txt-s { color: var(--txt-s); }
+
+/* Sharp legibility on any sky */
+.readable {
+  text-shadow:
+    0 1px 4px rgba(0,0,0,0.2),
+    0 0 24px rgba(0,0,0,0.08);
+}
+.readable-strong {
+  text-shadow:
+    0 2px 8px rgba(0,0,0,0.28),
+    0 0 48px rgba(0,0,0,0.12),
+    0 1px 2px rgba(0,0,0,0.4);
+}
+.label-tiny {
+  font-size: .6rem; text-transform: uppercase;
+  letter-spacing: .2em; font-weight: 700;
+  color: var(--txt-m);
+}
+
+/* ════════════════════════════════════════════════════════
+   LAYOUT
+════════════════════════════════════════════════════════ */
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 1.25rem; }
+header { padding: 1.6rem 0 1.25rem; }
+@media(min-width:768px){ header { padding: 2.4rem 0 1.5rem; } }
+.hdr-row { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+main { padding-bottom: 6rem; }
+
+/* ════════════════════════════════════════════════════════
+   LOGO
+════════════════════════════════════════════════════════ */
+.logo { display:flex; align-items:center; gap:.875rem; }
+.logo-gem {
+  width: 3rem; height: 3rem; border-radius: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: transform .5s var(--ease-spring);
+  position: relative;
+}
+.logo-gem .glass-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+.logo-gem svg {
+  display: block;
+  width: 1.4rem;
+  height: 1.4rem;
+}
+.logo-gem:hover { transform: rotate(10deg) scale(1.08); }
+.logo-name {
+  font-size: 1.65rem; line-height: 1;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: var(--txt);
+  transition: color 2.4s var(--ease-out);
+}
+.logo-sub {
+  font-size: .6rem; text-transform: uppercase;
+  letter-spacing: .2em; font-weight: 600;
+  color: var(--txt-m); margin-top: .2rem;
+  transition: color 2.4s var(--ease-out);
+}
+
+/* ════════════════════════════════════════════════════════
+   SEARCH — buttery spring animations
+════════════════════════════════════════════════════════ */
+.search-outer { position: relative; width: 100%; max-width: 40rem; }
+.search-bar {
+  display: flex; align-items: center; gap: .75rem;
+  border-radius: 9999px; padding: .72rem 1.15rem;
+  cursor: text;
+  transition:
+    transform .38s var(--ease-spring),
+    box-shadow .35s var(--ease-silk),
+    background .4s var(--ease-silk),
+    border-color .4s var(--ease-silk);
+}
+.search-bar:focus-within {
+  transform: scale(1.018) translateY(-2px);
+  box-shadow:
+    0 0 0 3px rgba(255,255,255,0.35),
+    0 16px 48px -12px var(--gl-shd),
+    0 4px 12px -4px rgba(0,0,0,0.2);
+}
+.search-bar input {
+  flex: 1; background: transparent; outline: none;
+  color: var(--txt); font-size: .95rem;
+  font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 500;
+  transition: color 2.4s var(--ease-out);
+}
+.search-bar input::placeholder { color: var(--txt-m); font-weight: 400; }
+.s-icon { color: var(--txt-m); flex-shrink: 0; transition: color .3s, transform .35s var(--ease-spring); }
+.search-bar:focus-within .s-icon { color: var(--txt); transform: scale(1.1); }
+.loc-btn {
+  display: flex; align-items: center; gap: .375rem;
+  border-radius: 9999px; padding: .35rem .9rem;
+  font-size: .8rem; font-weight: 600; font-family: inherit;
+  color: var(--txt); white-space: nowrap; cursor: pointer;
+  background: transparent; position: relative;
+  transition:
+    background .25s var(--ease-silk),
+    transform .35s var(--ease-spring),
+    color 2.4s var(--ease-out);
+}
+.loc-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+.loc-btn:active { transform: scale(0.96); }
+
+/* Dropdown — spring slide */
+.search-drop {
+  position: absolute; z-index: 80; top: calc(100% + .6rem); width: 100%;
+  border-radius: 1.5rem; overflow: hidden;
+  transform: translateY(-10px) scale(0.96);
+  opacity: 0; pointer-events: none;
+  transition:
+    opacity .32s var(--ease-out),
+    transform .38s var(--ease-spring);
+}
+.search-drop.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: all; }
+.drop-item {
+  display: flex; align-items: center; gap: .85rem;
+  width: 100%; text-align: left; padding: .85rem 1.2rem;
+  cursor: pointer; background: transparent; color: var(--txt);
+  font-family: inherit; font-size: .9rem; position: relative; z-index: 3;
+  transition:
+    background .18s var(--ease-silk),
+    padding-left .22s var(--ease-spring),
+    transform .2s var(--ease-spring);
+}
+.drop-item:hover {
+  background: rgba(255,255,255,0.18);
+  padding-left: 1.45rem;
+}
+.drop-item:active { transform: scale(0.98); }
+.drop-item-sub { font-size: .75rem; color: var(--txt-m); margin-top: .08rem; }
+
+/* ════════════════════════════════════════════════════════
+   HERO CARD
+════════════════════════════════════════════════════════ */
+#hero {
+  border-radius: 2.5rem;
+  padding: 2.25rem;
+  background: rgba(var(--gl-bg-rgb, 255,255,255),0.14) !important;
+  transition:
+    opacity .65s var(--ease-out),
+    transform .65s var(--ease-out),
+    background .4s var(--ease-silk),
+    border-color .4s var(--ease-silk),
+    box-shadow .4s var(--ease-silk);
+}
+@media(min-width:768px){ 
+  #hero { 
+    padding: 3.25rem; 
+  } 
+}
+
+.hero-hdr { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:1rem; margin-bottom:2rem; }
+.hero-loc { display:flex; align-items:center; gap:.45rem; font-size:.82rem; font-weight:500; margin-bottom:.55rem; }
+.hero-date { font-size: 2.4rem; line-height: 1.05; letter-spacing: -.025em; }
+@media(min-width:768px){ .hero-date { font-size: 3.2rem; } }
+.hero-desc { font-size: .92rem; margin-top: .3rem; text-transform: capitalize; font-weight: 400; }
+
+/* Save button */
+.save-btn {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .58rem 1.2rem; font-size: .82rem; font-weight: 700;
+  font-family: inherit; cursor: pointer; color: var(--txt);
+  position: relative;
+  transition:
+    transform .38s var(--ease-spring),
+    box-shadow .35s var(--ease-silk);
+}
+.save-btn:hover { transform: scale(1.06) translateY(-1px); }
+.save-btn:active { transform: scale(0.96) translateY(0); }
+
+/* Temperature */
+.hero-body { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:2rem; margin-bottom:1.25rem; }
+.temp-display {
+  font-family: 'Playfair Display', serif; font-weight: 700;
+  font-size: 7.5rem; line-height: .85; letter-spacing: -.04em;
+  color: var(--txt);
+  transition: color 2.4s var(--ease-out);
+}
+@media(min-width:768px){ .temp-display { font-size: 10.5rem; } }
+.temp-unit { font-family: 'Playfair Display', serif; font-size: 3rem; opacity: .45; vertical-align: super; font-weight: 400; }
+.feels-like { font-size: .875rem; margin-bottom: 2rem; color: var(--txt-m); }
+
+/* Floating weather icon */
+.icon-float { 
+  animation: float 7s cubic-bezier(.45,.05,.55,.95) infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+@media(max-width:640px) {
+  .icon-float {
+    min-width: 120px;
+    min-height: 120px;
+  }
+}
+@media(min-width:641px) {
+  .icon-float {
+    min-width: 160px;
+    min-height: 160px;
+  }
+}
+@keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-12px);} }
+
+/* Insight */
+.insight {
+  border-radius: 1.5rem;
+  padding: 1.35rem 1.6rem;
+  margin-bottom: 1.75rem;
+  border-left: 3px solid var(--accent);
+  transition: border-color 2.4s var(--ease-out);
+}
+.insight-quote {
+  font-family: 'Playfair Display', serif; font-style: italic;
+  font-size: 1.12rem; line-height: 1.55;
+  color: var(--txt);
+}
+@media(min-width:768px){ .insight-quote { font-size: 1.3rem; } }
+
+/* Vibes */
+.vibes { display:grid; grid-template-columns:1fr; gap:.75rem; margin-bottom:1.75rem; }
+@media(min-width:640px){ .vibes { grid-template-columns:repeat(3,1fr); } }
+.vibe-card {
+  border-radius: 1.35rem; padding: 1rem 1.1rem;
+  display: flex; gap: .75rem; align-items: flex-start;
+  transition:
+    transform .35s var(--ease-spring),
+    box-shadow .3s var(--ease-silk),
+    background .4s var(--ease-silk);
+}
+.vibe-card:hover { transform: translateY(-3px) scale(1.02); }
+.vibe-emoji { font-size: 1.85rem; line-height: 1; flex-shrink: 0; }
+.vibe-title { font-weight: 700; font-size: .9rem; color: var(--txt); }
+.vibe-tag { font-size: .73rem; color: var(--txt-m); line-height: 1.45; margin-top: .1rem; }
+
+/* Metrics */
+.metrics { display:grid; grid-template-columns:repeat(2,1fr); gap:.7rem; }
+@media(min-width:768px){ .metrics { grid-template-columns:repeat(6,1fr); } }
+.metric {
+  border-radius: 1.1rem; padding: .9rem .8rem;
+  transition:
+    transform .3s var(--ease-spring),
+    background .4s var(--ease-silk);
+}
+.metric:hover { transform: scale(1.05) translateY(-1px); }
+.metric-lbl { display:flex; align-items:center; gap:.3rem; font-size:.65rem; color:var(--txt-m); margin-bottom:.22rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; }
+.metric-val { font-weight: 700; font-size: 1.05rem; color: var(--txt); }
+
+/* ════════════════════════════════════════════════════════
+   FORECAST
+════════════════════════════════════════════════════════ */
+.forecast-grid { display:grid; grid-template-columns:1fr; gap:1rem; margin-top:1.25rem; }
+@media(min-width:1024px){ .forecast-grid { grid-template-columns:3fr 2fr; } }
+.fc-box { border-radius: 2.25rem; padding: 1.6rem; }
+
+.hourly-row { display:flex; gap:.7rem; overflow-x:auto; padding-bottom:.5rem; }
+.hourly-row::-webkit-scrollbar { display:none; }
+.hourly-row { scrollbar-width: none; }
+.h-card {
+  border-radius: 1.35rem; padding: .95rem .75rem;
+  display: flex; flex-direction: column; align-items: center; gap: .4rem;
+  min-width: 86px; cursor: default;
+  transition:
+    transform .32s var(--ease-spring),
+    background .3s var(--ease-silk);
+}
+.h-card:hover { transform: translateY(-4px) scale(1.04); }
+.h-time { font-size: .7rem; color: var(--txt-m); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.h-temp { font-weight: 700; font-size: .95rem; color: var(--txt); }
+.h-pop { display:flex; align-items:center; gap:.12rem; font-size:.62rem; color:var(--txt-m); font-weight:600; }
+
+.daily-list { display:flex; flex-direction:column; }
+.d-row {
+  display: flex; align-items: center; gap: .75rem; padding: .55rem .4rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  border-radius: .6rem;
+  transition: background .2s var(--ease-silk), padding-left .22s var(--ease-spring);
+  cursor: default;
+}
+.d-row:last-child { border-bottom: none; }
+.d-row:hover { background: rgba(255,255,255,0.1); padding-left: .75rem; }
+.d-day { font-weight: 700; width: 3.2rem; flex-shrink: 0; font-size: .85rem; color: var(--txt); }
+.d-desc { flex:1; font-size:.74rem; color:var(--txt-m); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.d-lo { font-size:.85rem; width:2.5rem; text-align:right; color:var(--txt-m); }
+.d-hi { font-weight:700; width:2.5rem; text-align:right; font-size:.92rem; color:var(--txt); }
+
+/* ════════════════════════════════════════════════════════
+   DASHBOARD
+════════════════════════════════════════════════════════ */
+#dashboard { margin-top: 2.75rem; }
+.dash-hdr { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:1.1rem; padding:0 .25rem; }
+.dash-title { font-size: 1.9rem; font-family:'Playfair Display',serif; font-weight:700; color:var(--txt); letter-spacing:-.02em; }
+.cities-grid { display:grid; grid-template-columns:1fr; gap:1rem; }
+@media(min-width:640px){ .cities-grid { grid-template-columns:repeat(2,1fr); } }
+@media(min-width:1024px){ .cities-grid { grid-template-columns:repeat(3,1fr); } }
+
+.city-card {
+  border-radius: 1.75rem; padding: 1.35rem; cursor: pointer; position: relative;
+  transition:
+    transform .38s var(--ease-spring),
+    box-shadow .35s var(--ease-silk),
+    background .4s var(--ease-silk);
+}
+.city-card:hover { transform: translateY(-5px) scale(1.015); }
+.city-card:active { transform: scale(0.98); }
+.city-rm {
+  position: absolute; top: .85rem; right: .85rem;
+  width: 1.85rem; height: 1.85rem; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0,0,0,0.15); cursor: pointer;
+  opacity: 0;
+  transition: opacity .22s, transform .32s var(--ease-spring);
+}
+.city-card:hover .city-rm { opacity: 1; }
+.city-rm:hover { transform: scale(1.18); background: rgba(0,0,0,0.3); }
+.city-meta { display:flex; align-items:center; gap:.32rem; font-size:.7rem; color:var(--txt-m); margin-bottom:.3rem; font-weight:600; }
+.city-name { font-family:'Playfair Display',serif; font-weight:700; font-size:1.5rem; margin-bottom:.8rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--txt); letter-spacing:-.02em; }
+.city-temp-row { display:flex; align-items:center; justify-content:space-between; }
+.city-temp { font-family:'Playfair Display',serif; font-weight:700; font-size:3rem; line-height:1; color:var(--txt); }
+.city-desc { font-size:.72rem; color:var(--txt-m); margin-top:.45rem; text-transform:capitalize; font-weight:500; }
+
+/* ════════════════════════════════════════════════════════
+   STATES
+════════════════════════════════════════════════════════ */
+#loading { border-radius:2.5rem; padding:5rem 2rem; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.25rem; }
+.spin-ring {
+  width: 2.75rem; height: 2.75rem; border-radius: 50%;
+  border: 2.5px solid rgba(255,255,255,0.2);
+  border-top-color: var(--txt);
+  animation: spin 1s linear infinite;
+}
+.load-txt { font-family:'Playfair Display',serif; font-size:1.5rem; font-style:italic; color:var(--txt); }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+#err-box { border-radius:1.5rem; padding:1.5rem; display:flex; align-items:center; gap:.85rem; margin-bottom:1.5rem; }
+
+/* Content enter animation */
+#content {
+  transition: opacity .7s var(--ease-out), transform .7s var(--ease-out);
+}
+#content.entering { opacity:0; transform:translateY(18px); }
+#content.visible { opacity:1; transform:translateY(0); }
+
+/* Stagger reveal */
+@keyframes reveal {
+  from { opacity:0; transform:translateY(14px); }
+  to { opacity:1; transform:translateY(0); }
+}
+.reveal { animation: reveal .7s var(--ease-out) both; }
+
+/* ════════════════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════════════════ */
+#toasts { position:fixed; bottom:1.75rem; right:1.75rem; z-index:200; display:flex; flex-direction:column-reverse; gap:.5rem; }
+.toast {
+  border-radius: 1.1rem; padding: .9rem 1.3rem; max-width: 22rem;
+  animation: toast-in .4s var(--ease-spring) both;
+  box-shadow: 0 8px 32px -8px var(--gl-shd), 0 2px 8px -2px rgba(0,0,0,0.18);
+}
+.toast.hide { animation: toast-out .3s var(--ease-out) forwards; }
+.toast-t { font-weight: 700; font-size: .88rem; color: var(--txt); }
+.toast-d { font-size: .78rem; color: var(--txt-m); margin-top: .12rem; }
+@keyframes toast-in { from{opacity:0;transform:translateY(12px) scale(.94);} to{opacity:1;transform:translateY(0) scale(1);} }
+@keyframes toast-out { to{opacity:0;transform:translateY(8px) scale(.96);} }
+
+/* ════════════════════════════════════════════════════════
+   SKY ANIMATION KEYFRAMES
+════════════════════════════════════════════════════════ */
+@keyframes cloud-drift { from{transform:translate3d(-16%,0,0);} to{transform:translate3d(116%,0,0);} }
+@keyframes rain-fall {
+  0%{transform:translate3d(0,-20vh,0) skewX(-10deg);opacity:0;}
+  8%{opacity:.85;}
+  100%{transform:translate3d(-28px,118vh,0) skewX(-10deg);opacity:0;}
+}
+@keyframes snow-fall {
+  0%{transform:translate3d(0,-8vh,0) rotate(0deg);opacity:0;}
+  10%{opacity:1;}
+  100%{transform:translate3d(var(--sw,45px),108vh,0) rotate(360deg);opacity:.35;}
+}
+@keyframes twinkle {
+  0%,100%{opacity:var(--o,.5);transform:scale(1);}
+  50%{opacity:1;transform:scale(1.45);}
+}
+@keyframes shoot {
+  0%{transform:translate3d(0,0,0) rotate(20deg);opacity:0;}
+  5%{opacity:1;} 65%{opacity:1;}
+  100%{transform:translate3d(450px,190px,0) rotate(20deg);opacity:0;}
+}
+@keyframes moon-bob { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+@keyframes sun-breathe { 0%,100%{filter:blur(.5px);transform:scale(1);} 50%{filter:blur(1px);transform:scale(1.035);} }
+@keyframes sun-spin { to{transform:rotate(360deg);} }
+@keyframes flash-a { 0%,87%,93%,100%{opacity:0;} 89%{opacity:.95;} 90%{opacity:.15;} 91%{opacity:1;} }
+@keyframes flash-b { 0%,60%,66%,100%{opacity:0;} 61%,65%{opacity:.7;} }
+@keyframes milky-drift { 0%{transform:rotate(-18deg) translate3d(-2%,0,0);} 100%{transform:rotate(-18deg) translate3d(2%,0,0);} }
+@keyframes mist-drift { from{transform:translate3d(-8%,0,0);} to{transform:translate3d(108%,0,0);} }
+
+/* sky element base */
+.s-cloud { position:absolute; left:0; will-change:transform; animation:cloud-drift linear infinite; }
+.s-rain { position:absolute; top:0; border-radius:2px; will-change:transform,opacity; animation:rain-fall linear infinite; }
+.s-snow { position:absolute; top:0; border-radius:50%; will-change:transform,opacity; animation:snow-fall linear infinite; }
+.s-star { position:absolute; border-radius:50%; animation:twinkle ease-in-out infinite; }
+.s-shoot { position:absolute; width:2px; height:2px; border-radius:50%; background:#fff; box-shadow:0 0 8px #fff; animation:shoot ease-out infinite; }
+.s-shoot::after { content:''; position:absolute; top:50%; left:0; width:140px; height:1px; background:linear-gradient(to left,#fff,transparent); transform:translateY(-50%); }
+.s-mist { position:absolute; left:-10%; right:-10%; filter:blur(18px); animation:mist-drift linear infinite; opacity:.55; }
+.s-moon { position:absolute; animation:moon-bob 11s cubic-bezier(.45,.05,.55,.95) infinite; }
+.s-milky { position:absolute; inset:0; mix-blend-mode:screen; filter:blur(3px); animation:milky-drift 190s linear infinite; }
+
+footer { margin-top:4rem; text-align:center; font-size:.7rem; color:var(--txt-s); padding-bottom:2rem; }
+
+@media(max-width:768px) {
+  .glass {
+    backdrop-filter: blur(24px) saturate(1.95) brightness(1.08) contrast(1.04);
+    -webkit-backdrop-filter: blur(24px) saturate(1.95) brightness(1.08) contrast(1.04);
+  }
+  .glass-dense {
+    backdrop-filter: blur(32px) saturate(2.15) brightness(1.08) contrast(1.05);
+    -webkit-backdrop-filter: blur(32px) saturate(2.15) brightness(1.08) contrast(1.05);
+  }
+}
+
+/* ════════════════════════════════════════════════════════
+   MENU MODAL
+════════════════════════════════════════════════════════ */
+#menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: rgba(0,0,0,0);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(0px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease-silk), backdrop-filter 0.3s var(--ease-silk), -webkit-backdrop-filter 0.3s var(--ease-silk);
+}
+#menu-overlay.open {
+  opacity: 1;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  pointer-events: all;
+}
+
+#menu-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  max-width: 420px;
+  height: 100vh;
+  z-index: 160;
+  background: var(--gl-bg2);
+  backdrop-filter: blur(40px) saturate(2.3) brightness(1.09) contrast(1.06);
+  -webkit-backdrop-filter: blur(40px) saturate(2.3) brightness(1.09) contrast(1.06);
+  border-right: 1.5px solid var(--gl-b2);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(-100%);
+  transition: transform 0.4s var(--ease-spring);
+  overflow-y: auto;
+}
+#menu-panel.open {
+  transform: translateX(0);
+}
+
+.menu-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.menu-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--txt);
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s, transform 0.2s var(--ease-spring);
+  flex-shrink: 0;
+}
+.menu-close:hover { background: rgba(255,255,255,0.15); transform: scale(1.1); }
+.menu-close:active { transform: scale(0.95); }
+
+.menu-content {
+  flex: 1;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.menu-item {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 1.5rem;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-silk);
+}
+.menu-item:hover {
+  background: rgba(255,255,255,0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -8px var(--gl-shd);
+}
+.menu-item:active {
+  transform: translateY(0);
+}
+
+.menu-item-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--txt);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.menu-item-desc {
+  font-size: 0.85rem;
+  color: var(--txt-m);
+  line-height: 1.5;
+}
+
+#modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 170;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+#modal-overlay.open {
+  display: flex;
+}
+
+.modal-content {
+  position: relative;
+  background: var(--gl-bg2);
+  backdrop-filter: blur(40px) saturate(2.3) brightness(1.09) contrast(1.06);
+  -webkit-backdrop-filter: blur(40px) saturate(2.3) brightness(1.09) contrast(1.06);
+  border: 1.5px solid var(--gl-b2);
+  border-radius: 2.5rem;
+  padding: 2.5rem;
+  max-width: 600px;
+  max-height: 80vh;
+  width: 90%;
+  overflow-y: auto;
+  animation: slide-up 0.4s var(--ease-spring) both;
+  box-shadow: 0 20px 60px -20px var(--gl-shd);
+}
+
+@keyframes slide-up { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+
+.modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--txt);
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s, transform 0.2s var(--ease-spring);
+}
+.modal-close:hover { background: rgba(255,255,255,0.15); transform: scale(1.1); }
+.modal-close:active { transform: scale(0.95); }
+
+@media (hover: none) {
+  .glass-pill:hover,
+  .logo-gem:hover,
+  .loc-btn:hover,
+  .drop-item:hover,
+  .save-btn:hover,
+  .vibe-card:hover,
+  .metric:hover,
+  .h-card:hover,
+  .d-row:hover,
+  .city-card:hover,
+  .city-card:hover .city-rm,
+  .city-rm:hover,
+  .menu-close:hover,
+  .menu-item:hover,
+  .modal-close:hover {
+    transform: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    padding-left: initial !important;
+  }
+}
+
+.modal-title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--txt);
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+  letter-spacing: -0.02em;
+}
+
+.modal-text {
+  font-size: 0.95rem;
+  color: var(--txt-m);
+  line-height: 1.8;
+  margin-bottom: 1.2rem;
+}
+.modal-text p {
+  margin-bottom: 1rem;
+}
+
+.modal-section {
+  margin-bottom: 1.5rem;
+}
+.modal-section-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--txt);
+  margin-bottom: 0.5rem;
+}
+
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════
+     PHOTOREALISTIC SKY LAYER
+════════════════════════════════════════════════════════ -->
+<div id="sky-wrap">
+  <div id="sky-atmo"></div>
+  <div id="sky-bloom"></div>
+  <!-- SVG for volumetric clouds + celestial bodies -->
+  <div id="sky-elements" style="position:absolute;inset:0;pointer-events:none;"></div>
+  <!-- Terrain silhouette -->
+  <svg id="sky-terrain" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" viewBox="0 0 1440 900">
+    <defs>
+      <linearGradient id="terrain-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--terrain2)"/>
+        <stop offset="100%" stop-color="var(--terrain)"/>
+      </linearGradient>
+    </defs>
+    <g id="terrain-paths"></g>
+  </svg>
+  <div id="sky-limb"></div>
+  <div id="sky-vignette"></div>
+  <div id="sky-grain"></div>
+</div>
+
+<div id="toasts"></div>
+
+<!-- MENU OVERLAY & PANEL -->
+<div id="menu-overlay"></div>
+<div id="menu-panel">
+  <div class="menu-header">
+    <div style="font-weight:700;color:var(--txt);font-size:1.3rem;">Menu</div>
+    <button class="menu-close" type="button">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+  <div class="menu-content">
+    <div class="menu-item" data-action="about">
+      <div class="menu-item-title">About</div>
+      <div class="menu-item-desc">Learn more about Skycast Atlas</div>
+    </div>
+    <div class="menu-item" data-action="privacy">
+      <div class="menu-item-title">Privacy</div>
+      <div class="menu-item-desc">Your privacy matters to us</div>
+    </div>
+    <div class="menu-item" data-action="terms">
+      <div class="menu-item-title">Terms & Conditions</div>
+      <div class="menu-item-desc">Read our terms and conditions</div>
+    </div>
+    <div class="menu-item" data-action="feedback">
+      <div class="menu-item-title">Feedback</div>
+      <div class="menu-item-desc">Send us your thoughts and suggestions</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL OVERLAY -->
+<div id="modal-overlay">
+  <div class="modal-content">
+    <button class="modal-close" type="button">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+
+<div class="wrap">
+  <header>
+    <div class="hdr-row">
+      <!-- LOGO -->
+      <div class="logo" style="cursor:pointer;" data-action="menu">
+        <div class="logo-gem glass glass-shadow">
+          <div class="glass-inner">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="txt">
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M16 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6H6a6 6 0 0 1-6-6 6 6 0 0 1 6-6"/>
+            </svg>
+          </div>
+        </div>
+        <div>
+          <div class="logo-name readable">Skycast Atlas</div>
+          <div class="logo-sub readable">Real skies · Real forecasts · Real insights</div>
+        </div>
+      </div>
+
+      <!-- SEARCH -->
+      <div class="search-outer" id="s-outer">
+        <div class="search-bar glass glass-dense glass-shadow">
+          <svg class="s-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <div class="glass-inner" style="flex:1;display:flex;align-items:center;gap:.6rem;">
+            <input id="s-input" placeholder="Search any city…" autocomplete="off" spellcheck="false"/>
+            <div id="s-spinner" style="display:none;flex-shrink:0;"><div class="spin-ring" style="width:1.1rem;height:1.1rem;border-width:2px;"></div></div>
+          </div>
+          <button class="loc-btn glass-pill" id="loc-btn" style="position:relative;">
+            <div class="glass-inner" style="display:flex;align-items:center;gap:.375rem;">
+              <svg id="loc-ico" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              <span id="loc-lbl">My location</span>
+            </div>
+          </button>
+        </div>
+        <div id="s-drop" class="search-drop glass glass-dense glass-shadow"></div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div id="err" style="display:none" class="glass glass-dense glass-shadow">
+      <div class="glass-inner" style="display:flex;align-items:center;gap:.85rem;padding:1.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div>
+          <div style="font-weight:700;font-size:.9rem;" class="txt">Couldn't load weather</div>
+          <div id="err-msg" class="txt-m" style="font-size:.82rem;margin-top:.1rem;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="loading" class="glass glass-dense glass-shadow">
+      <div class="glass-inner" style="display:flex;flex-direction:column;align-items:center;gap:1.25rem;">
+        <div class="spin-ring"></div>
+        <div class="load-txt readable">Reading the skies…</div>
+      </div>
+    </div>
+
+    <div id="content" style="display:none;">
+
+      <!-- HERO -->
+      <div id="hero" class="glass glass-dense glass-shadow reveal">
+        <div class="glass-inner">
+          <div class="hero-hdr">
+            <div>
+              <div class="hero-loc txt-m readable">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span id="h-loc"></span>
+              </div>
+              <h1 class="hero-date serif txt readable-strong" id="h-date"></h1>
+              <p class="hero-desc txt-m readable" id="h-desc"></p>
+            </div>
+            <button id="save-btn" class="save-btn glass glass-dense glass-shadow" style="border-radius:9999px;">
+              <div class="glass-inner" style="display:flex;align-items:center;gap:.5rem;">
+                <svg id="save-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                <span id="save-lbl">Save to dashboard</span>
+              </div>
+            </button>
+          </div>
+
+          <!-- Temp + Icon -->
+          <div class="hero-body">
+            <div>
+              <span class="temp-display readable-strong" id="h-temp">--</span><span class="temp-unit txt">°C</span>
+            </div>
+            <div class="icon-float txt" id="h-icon" style="opacity:.95;"></div>
+          </div>
+          <div class="feels-like readable" id="h-feels"></div>
+
+          <!-- Insight -->
+          <div class="insight glass glass-shadow">
+            <div class="glass-inner">
+              <div class="label-tiny" style="margin-bottom:.45rem;">Human insight</div>
+              <p class="insight-quote readable" id="h-insight"></p>
+            </div>
+          </div>
+
+          <!-- Vibes -->
+          <div class="vibes" id="h-vibes"></div>
+
+          <!-- Metrics -->
+          <div class="metrics" id="h-metrics"></div>
+        </div>
+      </div>
+
+      <!-- FORECAST -->
+      <div class="forecast-grid reveal" style="animation-delay:.12s;">
+        <div class="fc-box glass glass-dense glass-shadow">
+          <div class="glass-inner">
+            <div class="label-tiny" style="margin-bottom:1rem;">Next 24 hours</div>
+            <div class="hourly-row" id="hourly"></div>
+          </div>
+        </div>
+        <div class="fc-box glass glass-dense glass-shadow">
+          <div class="glass-inner">
+            <div class="label-tiny" style="margin-bottom:1rem;">5-day outlook</div>
+            <div class="daily-list" id="daily"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div id="dashboard" style="display:none;" class="reveal" style="animation-delay:.22s;">
+        <div class="dash-hdr">
+          <div>
+            <div class="label-tiny" style="margin-bottom:.3rem;">Your dashboard</div>
+            <div class="dash-title readable">Saved cities</div>
+          </div>
+          <span id="dash-count" class="txt-m" style="font-size:.75rem;font-weight:600;"></span>
+        </div>
+        <div class="cities-grid" id="cities"></div>
+      </div>
+
+    </div><!-- #content -->
+
+    <footer class="readable">Weather data by OpenWeatherMap · Cities saved locally on this device.</footer>
+  </main>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════
+   CONFIG & STATE
+════════════════════════════════════════════════════════ */
+const API_PROXY = "/api/openweather";
+let CW = null, saved = [], stimer = null;
+
+/* ════════════════════════════════════════════════════════
+   STORAGE
+════════════════════════════════════════════════════════ */
+const loadSaved = () => { try{return JSON.parse(localStorage.getItem("sc_atlas_v3")||"[]");}catch{return[];} };
+const writeSaved = a => localStorage.setItem("sc_atlas_v3", JSON.stringify(a));
+
+/* ════════════════════════════════════════════════════════
+   API
+════════════════════════════════════════════════════════ */
+const apiFetch = q => fetch(`${API_PROXY}?${q}`).then(r=>{if(!r.ok)throw Error("API request failed");return r.json();});
+const fw = (lat,lon) => apiFetch(`mode=weather&lat=${lat}&lon=${lon}`);
+const ff = (lat,lon) => apiFetch(`mode=forecast&lat=${lat}&lon=${lon}`);
+const geo = q => apiFetch(`mode=geo&q=${encodeURIComponent(q)}`);
+const debounce = (fn, delay=120) => {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(()=>fn(...args), delay);
+  };
+};
+
+async function getIpLocation() {
+  const endpoints = [
+    "https://geolocation-db.com/json/",
+    "https://ipwho.is/?ip=auto",
+    "https://ipinfo.io/json"
+  ];
+
+  for (const url of endpoints) {
+    try {
+      const resp = await fetch(url);
+      if (!resp.ok) continue;
+      const data = await resp.json();
+      const latitude = data.latitude || data.lat || (data.loc && data.loc.split(",")[0]);
+      const longitude = data.longitude || data.lon || (data.loc && data.loc.split(",")[1]);
+      if (!latitude || !longitude) continue;
+      return {
+        latitude: parseFloat(latitude),
+        longitude: parseFloat(longitude),
+        city: data.city || "",
+        region: data.region || data.state || "",
+        country: data.country_code || data.country || ""
+      };
+    } catch (err) {
+      continue;
+    }
+  }
+
+  throw Error("IP location unavailable");
+}
+
+/* ════════════════════════════════════════════════════════
+   THEME ENGINE
+════════════════════════════════════════════════════════ */
+const isDayTime = w => { const n=Date.now()/1000; return n>=w.sys.sunrise&&n<=w.sys.sunset; };
+const nearSunset = w => Math.abs(Date.now()/1000 - w.sys.sunset) < 2700;
+const getMain = w => ((w.weather?.[0]?.main)||"").toLowerCase();
+function getTheme(w) {
+  const m=getMain(w), day=isDayTime(w);
+  if(m.includes("thunder")) return "storm";
+  if(m.includes("snow")) return "snow";
+  if(m.includes("rain")||m.includes("drizzle")) return "rain";
+  if(m.includes("mist")||m.includes("fog")||m.includes("haze")||m.includes("smoke")||m.includes("dust")) return "mist";
+  if(m.includes("cloud")) return day?"cloudy":"clear-night";
+  if(!day) return "clear-night";
+  if(nearSunset(w)) return "sunset";
+  return "clear-day";
+}
+
+/* ════════════════════════════════════════════════════════
+   PHOTOREALISTIC SKY BUILDER
+   Each theme: accurate sky gradient, correct sun/moon
+   position, volumetric fractal-noise clouds, terrain
+════════════════════════════════════════════════════════ */
+const R = x => Math.random()*x;
+const rr = (a,b) => Math.random()*(b-a)+a;
+
+const SKY_CFG = {
+  "clear-day":   { sun:true,  sunTop:"9%",  sunRight:"8%",  sunSz:340, sunCore:"radial-gradient(circle,#fffde7 0%,#ffecb3 35%,#ffe082 58%,rgba(255,130,0,0) 80%)", sunHalo:"radial-gradient(circle,rgba(255,228,80,0.5) 0%,rgba(255,180,50,0.22) 38%,transparent 68%)", sunRays:true, moon:false, stars:false, milky:false, clouds:true, rain:false, snow:false, lightning:false, mist:false },
+  "clear-night": { sun:false, moon:true, moonTop:"7%", moonRight:"12%", moonSz:155, stars:true, milky:true, clouds:false, rain:false, snow:false, lightning:false, mist:false },
+  "cloudy":      { sun:false, moon:false, stars:false, milky:false, clouds:true, rain:false, snow:false, lightning:false, mist:false },
+  "rain":        { sun:false, moon:false, stars:false, milky:false, clouds:true, rain:true, snow:false, lightning:false, mist:false },
+  "storm":       { sun:false, moon:false, stars:false, milky:false, clouds:true, rain:true, snow:false, lightning:true, mist:false },
+  "snow":        { sun:true,  sunTop:"14%", sunRight:"10%", sunSz:220, sunCore:"radial-gradient(circle,#f0f8ff 0%,#d0e8f5 45%,rgba(160,200,230,0) 80%)", sunHalo:"radial-gradient(circle,rgba(180,215,240,0.35) 0%,rgba(150,195,230,0.14) 48%,transparent 70%)", sunRays:false, moon:false, stars:false, milky:false, clouds:true, rain:false, snow:true, lightning:false, mist:false },
+  "mist":        { sun:true,  sunTop:"40%", sunRight:"25%", sunSz:240, sunCore:"radial-gradient(circle,rgba(255,240,200,0.9) 0%,rgba(240,215,170,0.55) 40%,rgba(220,195,148,0) 80%)", sunHalo:"radial-gradient(circle,rgba(255,225,175,0.5) 0%,rgba(240,205,160,0.2) 48%,transparent 70%)", sunRays:false, moon:false, stars:false, milky:false, clouds:true, rain:false, snow:false, lightning:false, mist:true },
+  "sunset":      { sun:true,  sunTop:"70%", sunRight:"5%",  sunSz:420, sunCore:"radial-gradient(circle,#fff5cc 0%,#ffe066 28%,#ff8c00 55%,rgba(180,40,0,0) 78%)", sunHalo:"radial-gradient(circle,rgba(255,200,50,0.6) 0%,rgba(255,100,20,0.28) 40%,transparent 68%)", sunRays:true, moon:false, stars:false, milky:false, clouds:true, rain:false, snow:false, lightning:false, mist:false },
+};
+
+function buildTerrain(theme) {
+  const g = document.getElementById("terrain-paths");
+  const cs = getComputedStyle(document.documentElement);
+  g.innerHTML = "";
+  const W=1440, H=900;
+  // Far mountain range
+  let d = `M0,${H}`;
+  for(let i=0;i<=24;i++){
+    const x=(i/24)*W;
+    const y=H*.68 - Math.sin(i*.62+1.2)*H*.16 - Math.sin(i*1.35+.4)*H*.1 - Math.max(0,Math.sin(i*.32+2))*H*.12;
+    d += ` L${x.toFixed(1)},${y.toFixed(1)}`;
+  }
+  d += ` L${W},${H}Z`;
+  const far = document.createElementNS("http://www.w3.org/2000/svg","path");
+  far.setAttribute("d",d); far.setAttribute("fill","url(#terrain-grad)"); far.setAttribute("opacity","0.6");
+  g.appendChild(far);
+
+  // Near hills
+  let d2 = `M0,${H}`;
+  for(let i=0;i<=16;i++){
+    const x=(i/16)*W;
+    const y=H*.80 - Math.sin(i*.88+2.1)*H*.07 - Math.sin(i*2+.7)*H*.03;
+    d2 += ` L${x.toFixed(1)},${y.toFixed(1)}`;
+  }
+  d2 += ` L${W},${H}Z`;
+  const near = document.createElementNS("http://www.w3.org/2000/svg","path");
+  near.setAttribute("d",d2); near.setAttribute("fill","var(--terrain)"); near.setAttribute("opacity","1");
+  g.appendChild(near);
+
+  // Tree line silhouette
+  let dt = `M0,${H}`;
+  for(let x=0;x<=W;x+=16){
+    const by = H*.82 + Math.sin(x*.04)*H*.018;
+    const th = 15+R(32);
+    dt += ` L${x},${by} L${x+4},${by-th*.45} L${x+8},${by-th} L${x+12},${by-th*.45} L${x+16},${by}`;
+  }
+  dt += ` L${W},${H}Z`;
+  const trees = document.createElementNS("http://www.w3.org/2000/svg","path");
+  trees.setAttribute("d",dt); trees.setAttribute("fill","var(--terrain)"); trees.setAttribute("opacity","0.92");
+  g.appendChild(trees);
+}
+
+let _cloudSeed = 0;
+function cloudSVG(theme) {
+  const id = `cld${++_cloudSeed}`;
+  const dark = ["storm","rain","clear-night"].includes(theme);
+  const lt = dark ? "var(--cloud-lt)" : "var(--cloud-lt)";
+  const dk = dark ? "var(--cloud-dk)" : "var(--cloud-dk)";
+  const rim = "var(--cloud-rim)";
+  const seed = Math.floor(R(200));
+  const seed2 = Math.floor(R(200));
+  return `<svg width="560" height="220" viewBox="0 0 560 220" fill="none" xmlns="http://www.w3.org/2000/svg" style="display:block;overflow:visible;">
+    <defs>
+      <filter id="${id}" x="-25%" y="-30%" width="150%" height="160%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.016 0.02" numOctaves="4" seed="${seed}" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="20" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="1.5"/>
+      </filter>
+      <filter id="${id}b" x="-25%" y="-30%" width="150%" height="160%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.013 0.017" numOctaves="4" seed="${seed2}" result="n"/>
+        <feDisplacementMap in="SourceGraphic" in2="n" scale="16" xChannelSelector="R" yChannelSelector="G"/>
+        <feGaussianBlur stdDeviation="1.2"/>
+      </filter>
+      <linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="${lt}" stop-opacity="1"/>
+        <stop offset="55%" stop-color="${lt}" stop-opacity="0.96"/>
+        <stop offset="100%" stop-color="${dk}" stop-opacity="0.88"/>
+      </linearGradient>
+      <radialGradient id="${id}r" cx="50%" cy="30%" r="55%">
+        <stop offset="0%" stop-color="${rim}" stop-opacity="0.7"/>
+        <stop offset="100%" stop-color="${lt}" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <g filter="url(#${id})">
+      <ellipse cx="148" cy="135" rx="130" ry="62" fill="url(#${id}g)"/>
+      <ellipse cx="278" cy="105" rx="148" ry="74" fill="url(#${id}g)"/>
+      <ellipse cx="405" cy="128" rx="118" ry="56" fill="url(#${id}g)"/>
+      <ellipse cx="238" cy="152" rx="188" ry="42" fill="${dk}" opacity="0.75"/>
+    </g>
+    <g filter="url(#${id}b)" opacity="0.5">
+      <ellipse cx="285" cy="88" rx="90" ry="44" fill="url(#${id}r)"/>
+    </g>
+  </svg>`;
+}
+
+function buildSky(theme) {
+  const cfg = SKY_CFG[theme] || SKY_CFG["clear-day"];
+  const el = document.getElementById("sky-elements");
+  const isMobile = window.innerWidth <= 768;
+  const frag = document.createDocumentFragment();
+
+  // Clear old dynamic elements (keep static divs)
+  el.innerHTML = "";
+
+  /* SUN */
+  if(cfg.sun) {
+    const sz = isMobile ? Math.min(cfg.sunSz * .65, 260) : cfg.sunSz;
+    const sun = document.createElement("div");
+    sun.className = "s-sun";
+    sun.style.cssText = `position:fixed;top:${cfg.sunTop};right:${isMobile?"2%":cfg.sunRight};width:${sz}px;height:${sz}px;pointer-events:none;z-index:-9;will-change:transform;`;
+    sun.innerHTML = `
+      <div style="position:absolute;inset:-32%;background:${cfg.sunHalo};filter:blur(10px);border-radius:50%;"></div>
+      <div style="position:absolute;inset:22%;border-radius:50%;background:${cfg.sunCore};box-shadow:0 0 80px 20px rgba(255,210,60,.42),0 0 220px 60px rgba(255,160,40,.22);animation:sun-breathe 9s ease-in-out infinite;"></div>
+      ${cfg.sunRays?`<div style="position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,transparent 0deg,rgba(255,230,80,0.14) 7deg,transparent 14deg,transparent 52deg,rgba(255,210,60,0.1) 59deg,transparent 66deg,transparent 178deg,rgba(255,230,80,0.13) 185deg,transparent 192deg,transparent 248deg,rgba(255,215,60,0.1) 255deg,transparent 262deg);animation:sun-spin 140s linear infinite;filter:blur(1.8px);mix-blend-mode:screen;opacity:.7;"></div>`:""}
+    `;
+    frag.appendChild(sun);
+  }
+
+  /* MOON */
+  if(cfg.moon) {
+    const sz = isMobile ? 110 : cfg.moonSz;
+    const moon = document.createElement("div");
+    moon.className = "s-moon";
+    moon.style.cssText = `position:fixed;top:${cfg.moonTop};right:${isMobile?"6%":cfg.moonRight};width:${sz}px;height:${sz}px;pointer-events:none;z-index:-9;`;
+    moon.innerHTML = `
+      <div style="width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 36% 34%,#f5f9ff 0%,#c4d4ee 55%,#7088aa 100%);box-shadow:inset -10px -14px 30px rgba(50,72,120,0.52),0 0 50px 10px rgba(100,150,230,0.16);"></div>
+      <span style="position:absolute;top:22%;left:28%;width:18%;height:18%;border-radius:50%;background:radial-gradient(circle,rgba(90,120,175,.65),transparent);filter:blur(.7px);"></span>
+      <span style="position:absolute;top:57%;left:59%;width:13%;height:13%;border-radius:50%;background:radial-gradient(circle,rgba(80,110,168,.58),transparent);filter:blur(.6px);"></span>
+      <span style="position:absolute;top:38%;left:63%;width:8%;height:8%;border-radius:50%;background:radial-gradient(circle,rgba(90,118,172,.52),transparent);filter:blur(.5px);"></span>
+      <div style="position:absolute;inset:-42%;border-radius:50%;background:radial-gradient(circle,rgba(130,175,255,.2) 0%,rgba(100,155,240,.07) 45%,transparent 70%);filter:blur(5px);"></div>
+    `;
+    frag.appendChild(moon);
+  }
+
+  /* STARS */
+  if(cfg.stars) {
+    const n = isMobile ? 60 : 120;
+    for(let i=0;i<n;i++){
+      const s = document.createElement("span");
+      s.className = "s-star";
+      const sz=rr(.3,2.1), o=rr(.3,1);
+      s.style.cssText = `position:fixed;width:${sz}px;height:${sz}px;top:${R(72)}%;left:${R(100)}%;--o:${o};opacity:${o};background:radial-gradient(circle,#fff 0%,rgba(200,220,255,.8) 55%,transparent 100%);box-shadow:0 0 ${sz*3}px rgba(180,210,255,.75);animation-duration:${rr(3,9)}s;animation-delay:${R(7)}s;pointer-events:none;z-index:-9;`;
+      frag.appendChild(s);
+    }
+    /* Shooting stars */
+    for(let i=0;i<2;i++){
+      const s = document.createElement("span");
+      s.className = "s-shoot";
+      s.style.cssText = `position:fixed;top:${R(42)}%;left:${R(65)}%;animation-duration:${rr(1.4,2.6)}s;animation-delay:${rr(5,24)}s;pointer-events:none;z-index:-9;`;
+      frag.appendChild(s);
+    }
+  }
+
+  /* MILKY WAY */
+  if(cfg.milky) {
+    const mw = document.createElement("div");
+    mw.className = "s-milky";
+    mw.style.cssText = `position:fixed;inset:0;pointer-events:none;z-index:-9;background:radial-gradient(ellipse 62% 10% at 64% 28%,rgba(190,215,255,.16) 0%,transparent 70%),radial-gradient(ellipse 50% 7% at 59% 36%,rgba(170,195,255,.11) 0%,transparent 70%);`;
+    frag.appendChild(mw);
+  }
+
+  /* CLOUDS */
+  if(cfg.clouds) {
+    const cnt = isMobile ? 3 : 5;
+    for(let i=0;i<cnt;i++){
+      const c = document.createElement("div");
+      c.className = "s-cloud";
+      const scale = rr(.75, 2.15), dur = rr(105, 290), delay = -R(140);
+      const top = 2+i*12+R(8), opacity = rr(.48,.94), blur = i<2?0:i<4?0.9:2.2;
+      c.style.cssText = `position:fixed;top:${top}%;opacity:${opacity};filter:blur(${blur}px);transform:scale(${scale});animation-duration:${dur}s;animation-delay:${delay}s;pointer-events:none;z-index:-9;will-change:transform;`;
+      c.innerHTML = cloudSVG(theme);
+      frag.appendChild(c);
+    }
+  }
+
+  /* RAIN */
+  if(cfg.rain) {
+    const cnt = isMobile ? 75 : 120;
+    for(let i=0;i<cnt;i++){
+      const r = document.createElement("span");
+      r.className = "s-rain";
+      const h=rr(55,165), w=Math.random()>.82?1.5:1;
+      r.style.cssText = `position:fixed;left:${R(100)}%;height:${h}px;width:${w}px;background:linear-gradient(to bottom,transparent,rgba(155,210,240,.88));animation-duration:${rr(.38,.92)}s;animation-delay:${R(2)}s;opacity:${rr(.18,.65)};pointer-events:none;z-index:-9;will-change:transform;`;
+      frag.appendChild(r);
+    }
+  }
+
+  /* SNOW */
+  if(cfg.snow) {
+    const cnt = isMobile ? 40 : 70;
+    for(let i=0;i<cnt;i++){
+      const f = document.createElement("span");
+      f.className = "s-snow";
+      const sz=rr(2,7), sw=rr(25,85);
+      f.style.cssText = `position:fixed;left:${R(100)}%;width:${sz}px;height:${sz}px;--sw:${sw}px;opacity:${rr(.5,1)};background:radial-gradient(circle,#fff 0%,rgba(255,255,255,.5) 60%,transparent 100%);box-shadow:0 0 ${sz}px rgba(255,255,255,.7);animation-duration:${rr(9,22)}s;animation-delay:${R(10)}s;pointer-events:none;z-index:-9;will-change:transform;`;
+      frag.appendChild(f);
+    }
+  }
+
+  /* LIGHTNING */
+  if(cfg.lightning) {
+    const la = document.createElement("div");
+    la.className = "lightning-a";
+    la.style.cssText = "position:fixed;inset:0;mix-blend-mode:screen;animation:flash-a 12s ease-in-out infinite;pointer-events:none;z-index:-9;background:radial-gradient(ellipse at 26% 18%,rgba(255,238,110,.72),transparent 52%);";
+    const lb = document.createElement("div");
+    lb.className = "lightning-b";
+    lb.style.cssText = "position:fixed;inset:0;mix-blend-mode:screen;animation:flash-b 18s ease-in-out infinite;pointer-events:none;z-index:-9;background:radial-gradient(ellipse at 73% 30%,rgba(175,205,255,.6),transparent 52%);";
+    frag.appendChild(la); frag.appendChild(lb);
+  }
+
+  /* MIST */
+  if(cfg.mist) {
+    [0,1,2].forEach(n=>{
+      const m = document.createElement("div");
+      m.className = "s-mist";
+      const tops = [32,52,72], durs = [165,225,285], heights = [140,160,115];
+      const cols = ["rgba(235,225,212,.7)","rgba(225,215,202,.65)","rgba(218,208,196,.58)"];
+      m.style.cssText = `position:fixed;top:${tops[n]}%;height:${heights[n]}px;background:linear-gradient(to bottom,transparent,${cols[n]},transparent);animation-duration:${durs[n]}s;pointer-events:none;z-index:-9;`;
+      frag.appendChild(m);
+    });
+  }
+
+  el.appendChild(frag);
+  buildTerrain(theme);
+}
+
+/* ════════════════════════════════════════════════════════
+   WEATHER ICON SVG
+════════════════════════════════════════════════════════ */
+function wIcon(main, icon, size=64) {
+  const m=(main||"").toLowerCase(), n=(icon||"").endsWith("n");
+  const a=`width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"`;
+  if(m.includes("thunder")) return `<svg ${a}><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M11 12 9 17h4l-2 5"/></svg>`;
+  if(m.includes("snow")) return `<svg ${a}><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/><line x1="8" y1="19" x2="8" y2="21"/><line x1="12" y1="18" x2="12" y2="20"/><line x1="16" y1="19" x2="16" y2="21"/></svg>`;
+  if(m.includes("rain")||m.includes("drizzle")) return `<svg ${a}><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/><line x1="8" y1="19" x2="8" y2="21"/><line x1="12" y1="18" x2="12" y2="20"/><line x1="16" y1="19" x2="16" y2="21"/></svg>`;
+  if(m.includes("mist")||m.includes("fog")||m.includes("haze")) return `<svg ${a}><path d="M20 17.58A5 5 0 0 0 18 8h-1.26A8 8 0 1 0 4 16.25"/><line x1="4" y1="20" x2="20" y2="20"/><line x1="4" y1="24" x2="20" y2="24"/></svg>`;
+  if(m.includes("cloud")) {
+    if(n) return `<svg ${a}><path d="M13 16a3 3 0 1 1 0 6H7a5 5 0 1 1 4.9-6Z"/><path d="M10.1 3.2A6 6 0 0 1 16 9a6 6 0 0 1-.8 3"/></svg>`;
+    if(icon==="02d"||icon==="03d") return `<svg ${a}><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><path d="M16 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6H6a6 6 0 0 1-6-6 6 6 0 0 1 6-6"/></svg>`;
+    return `<svg ${a}><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>`;
+  }
+  if(n) return `<svg ${a}><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+  return `<svg ${a}><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>`;
+}
+
+/* ════════════════════════════════════════════════════════
+   INSIGHTS & VIBES
+════════════════════════════════════════════════════════ */
+function vibes(w) {
+  const v=[],t=w.main.temp,h=w.main.humidity,ws=w.wind?.speed??0;
+  const m=getMain(w);
+  if(t>30)v.push({title:"Stay Hydrated",emoji:"💧",tag:"Heatwave incoming — sip water like it's your job."});
+  if(t>=22&&t<=29&&m.includes("clear"))v.push({title:"T-Shirt Weather",emoji:"👕",tag:"A perfect day to be outside, no layers required."});
+  if(t<10&&t>=0)v.push({title:"Jacket Season",emoji:"🧥",tag:"Crisp air — layer up before heading out."});
+  if(t<0)v.push({title:"Deep Freeze",emoji:"🥶",tag:"Bundle up, it's biting cold out there."});
+  if(h>80&&t>18)v.push({title:"Frizz Alert",emoji:"💇",tag:"High humidity — hair's doing its own thing today."});
+  if(h<25)v.push({title:"Dry Air",emoji:"🪻",tag:"Moisturize and keep water nearby."});
+  if(m.includes("rain")||m.includes("drizzle"))v.push({title:"Umbrella Day",emoji:"☂️",tag:"Pack an umbrella and embrace the pitter-patter."});
+  if(m.includes("thunder"))v.push({title:"Stay Inside",emoji:"⚡",tag:"Thunder rolling — perfect excuse for a movie night."});
+  if(m.includes("snow"))v.push({title:"Snow Day",emoji:"❄️",tag:"Hot cocoa, thick socks, window seat. Done."});
+  if(ws>10)v.push({title:"Windy Hair Day",emoji:"🌬️",tag:"Anything unsecured will fly — secure your hat."});
+  if(m.includes("clear")&&t>15&&t<28)v.push({title:"Golden Hour Ready",emoji:"🌇",tag:"Camera out — the light is doing its thing."});
+  if(w.visibility<1000)v.push({title:"Foggy Drive",emoji:"🌫️",tag:"Low visibility — headlights on, take it slow."});
+  if(v.length===0)v.push({title:"Mild & Mellow",emoji:"🌤️",tag:"Nothing dramatic. Good day to just… be."});
+  return v.slice(0,3);
+}
+function insight(w) {
+  const t=Math.round(w.main.temp),m=getMain(w),c=w.name;
+  if(m.includes("thunder"))return`Thunder's rolling over ${c} — cozy up inside with something warm.`;
+  if(m.includes("rain")||m.includes("drizzle"))return`Pack an umbrella for ${c}. The kind of day that makes coffee taste better.`;
+  if(m.includes("snow"))return`${c} is under a blanket of snow (${t}°C). Boots, gloves, and a plan to go nowhere fast.`;
+  if(m.includes("mist")||m.includes("fog"))return`${c} is wrapped in mist today — quiet, moody, a little cinematic.`;
+  if(m.includes("cloud"))return`Overcast skies in ${c} at ${t}°C. Great light for photos, low-drama for plans.`;
+  if(t>32)return`${c} is sizzling at ${t}°C — sunscreen, shade, and cold drinks on rotation.`;
+  if(t>25)return`${c} is warm (${t}°C) and clear. A perfect day for a t-shirt and somewhere outside.`;
+  if(t>15)return`${c} is sitting at a gentle ${t}°C — sweater optional, mood excellent.`;
+  if(t>5)return`${c} is chilly (${t}°C). Grab a jacket before heading out.`;
+  return`${c} is properly cold at ${t}°C — layers, layers, and one more layer.`;
+}
+const rebuildSky = debounce(() => {
+  if (!CW) return;
+  document.querySelectorAll(".s-sun,.s-moon,.s-star,.s-shoot,.s-cloud,.s-rain,.s-snow,.s-mist,.s-milky,.lightning-a,.lightning-b").forEach(e=>e.remove());
+  buildSky(getTheme(CW));
+});
+window.addEventListener("resize", rebuildSky);
+
+const fmtTime = (ts,tz) => { const d=new Date((ts+tz)*1000); return d.toUTCString().slice(17,22); };
+
+/* ════════════════════════════════════════════════════════
+   RENDER WEATHER
+════════════════════════════════════════════════════════ */
+function render(w, fcast) {
+  CW = w;
+  const theme = getTheme(w);
+  document.documentElement.setAttribute("data-theme", theme);
+
+  // Rebuild sky — purge old dynamic elements
+  document.querySelectorAll(".s-sun,.s-moon,.s-star,.s-shoot,.s-cloud,.s-rain,.s-snow,.s-mist,.s-milky,.lightning-a,.lightning-b").forEach(e=>e.remove());
+  buildSky(theme);
+
+  // Buttery content transition
+  const cont = document.getElementById("content");
+  document.getElementById("loading").style.display = "none";
+  cont.style.display = "block";
+  cont.classList.remove("visible"); cont.classList.add("entering");
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    cont.classList.remove("entering"); cont.classList.add("visible");
+  }));
+
+  const tz = w.timezone ?? 0;
+  document.getElementById("h-loc").textContent = `${w.name}${w.sys?.country?", "+w.sys.country:""}`;
+  document.getElementById("h-date").textContent = new Date().toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"});
+  document.getElementById("h-desc").textContent = w.weather[0]?.description ?? "";
+  document.getElementById("h-icon").innerHTML = wIcon(w.weather[0]?.main, w.weather[0]?.icon, 180);
+
+  // Temperature count-up animation
+  const tEl = document.getElementById("h-temp");
+  const target = Math.round(w.main.temp);
+  let cur = target - 8, step = (target - cur) / 14;
+  const tick = () => { cur += step; tEl.textContent = Math.round(cur); if(Math.abs(cur-target)>.4) requestAnimationFrame(tick); else tEl.textContent = target; };
+  tick();
+
+  document.getElementById("h-feels").innerHTML = `Feels like <strong style="font-weight:700;">${Math.round(w.main.feels_like)}°</strong> &nbsp;·&nbsp; H: ${Math.round(w.main.temp_max)}° &nbsp;·&nbsp; L: ${Math.round(w.main.temp_min)}°`;
+  document.getElementById("h-insight").textContent = `"${insight(w)}"`;
+
+  // Vibes
+  document.getElementById("h-vibes").innerHTML = vibes(w).map((v,i)=>`
+    <div class="vibe-card glass glass-shadow" style="animation:reveal .6s cubic-bezier(.22,.61,.36,1) ${.08+i*.07}s both;">
+      <div class="glass-inner" style="display:flex;gap:.75rem;align-items:flex-start;">
+        <div class="vibe-emoji">${v.emoji}</div>
+        <div><div class="vibe-title readable">${v.title}</div><div class="vibe-tag readable">${v.tag}</div></div>
+      </div>
+    </div>`).join("");
+
+  // Metrics
+  const ic=(p,sw=1.6)=>`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+  const met=(icon,lbl,val,d)=>`
+    <div class="metric glass glass-shadow" style="animation:reveal .6s cubic-bezier(.22,.61,.36,1) ${d}s both;">
+      <div class="glass-inner">
+        <div class="metric-lbl">${icon}<span>${lbl}</span></div>
+        <div class="metric-val readable">${val}</div>
+      </div>
+    </div>`;
+  document.getElementById("h-metrics").innerHTML =
+    met(ic(`<path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/>`),"Humidity",`${w.main.humidity}%`,.22)+
+    met(ic(`<path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/>`),"Wind",`${Math.round(w.wind?.speed??0)} m/s`,.28)+
+    met(ic(`<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`),"Visibility",`${((w.visibility??10000)/1000).toFixed(1)} km`,.34)+
+    met(ic(`<path d="M12 2a5 5 0 0 1 5 5c0 5.25-5 13-5 13S7 12.25 7 7a5 5 0 0 1 5-5z"/><circle cx="12" cy="7" r="2"/>`),"Pressure",`${w.main.pressure} hPa`,.40)+
+    met(ic(`<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>`),"Sunrise",fmtTime(w.sys?.sunrise??0,tz),.46)+
+    met(ic(`<path d="M17 18a5 5 0 0 0-10 0"/><line x1="12" y1="2" x2="12" y2="9"/><line x1="4.22" y1="10.22" x2="5.64" y2="11.64"/><line x1="1" y1="18" x2="3" y2="18"/><line x1="21" y1="18" x2="23" y2="18"/><line x1="18.36" y1="11.64" x2="19.78" y2="10.22"/>`),"Sunset",fmtTime(w.sys?.sunset??0,tz),.52);
+
+  /* FORECAST */
+  if(fcast) {
+    const hlist = fcast.list.slice(0,8);
+    document.getElementById("hourly").innerHTML = hlist.map(h=>{
+      const d=new Date((h.dt+tz)*1000), hr=d.toUTCString().slice(17,22), pop=h.pop??0;
+      return `<div class="h-card glass glass-shadow">
+        <div class="glass-inner" style="display:flex;flex-direction:column;align-items:center;gap:.4rem;">
+          <div class="h-time">${hr}</div>
+          <div class="txt">${wIcon(h.weather?.[0]?.main,h.weather?.[0]?.icon,30)}</div>
+          <div class="h-temp">${Math.round(h.main.temp)}°</div>
+          ${pop>.1?`<div class="h-pop txt-m"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>${Math.round(pop*100)}%</div>`:""}
+        </div>
+      </div>`;
+    }).join("");
+
+    const byDay = {};
+    for(const i of fcast.list){ const k=new Date(i.dt*1000).toISOString().slice(0,10); (byDay[k]=byDay[k]||[]).push(i); }
+    document.getElementById("daily").innerHTML = Object.entries(byDay).slice(0,5).map(([date,items],i)=>{
+      const mid=items[Math.floor(items.length/2)];
+      const lbl=i===0?"Today":new Date(date).toLocaleDateString(undefined,{weekday:"short"});
+      const lo=Math.round(Math.min(...items.map(x=>x.main.temp_min))), hi=Math.round(Math.max(...items.map(x=>x.main.temp_max)));
+      return `<div class="d-row">
+        <div class="d-day">${lbl}</div>
+        <div class="txt">${wIcon(mid.weather?.[0]?.main,mid.weather?.[0]?.icon,26)}</div>
+        <div class="d-desc txt-m">${mid.weather?.[0]?.description??""}</div>
+        <div class="d-lo txt-m">${lo}°</div>
+        <div class="d-hi">${hi}°</div>
+      </div>`;
+    }).join("");
+  }
+
+  updateSaveBtn();
+}
+
+/* ════════════════════════════════════════════════════════
+   SAVE / DASHBOARD
+════════════════════════════════════════════════════════ */
+const isSaved = (lat,lon) => saved.some(c=>c.lat===lat&&c.lon===lon);
+function updateSaveBtn() {
+  if(!CW) return;
+  const on = isSaved(CW.coord.lat, CW.coord.lon);
+  document.getElementById("save-lbl").textContent = on ? "Remove" : "Save to dashboard";
+  document.getElementById("save-ico").innerHTML = on
+    ? `<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" fill="currentColor" stroke="none"/>`
+    : `<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>`;
+}
+function toggleSave() {
+  if(!CW) return;
+  const lat=CW.coord.lat, lon=CW.coord.lon;
+  if(isSaved(lat,lon)){
+    saved = saved.filter(c=>!(c.lat===lat&&c.lon===lon));
+    toast("Removed from dashboard", CW.name);
+  } else {
+    saved.push({name:CW.name,country:CW.sys?.country??"",lat,lon});
+    toast("Saved to dashboard", `${CW.name} is now a tap away.`);
+  }
+  writeSaved(saved); updateSaveBtn(); renderDash();
+}
+
+async function renderDash() {
+  const dash = document.getElementById("dashboard");
+  const grid = document.getElementById("cities");
+  if(!saved.length){ dash.style.display="none"; return; }
+  dash.style.display = "block";
+  document.getElementById("dash-count").textContent = `${saved.length} saved`;
+  const curKey = CW?`${CW.coord.lat},${CW.coord.lon}`:"";
+
+  grid.innerHTML = saved.map((c,i)=>`
+    <div class="city-card glass glass-dense glass-shadow" data-lat="${c.lat}" data-lon="${c.lon}" id="cc-${c.lat}-${c.lon}"
+         style="animation:reveal .6s cubic-bezier(.22,.61,.36,1) ${i*.07}s both;">
+      <div class="glass-inner">
+        <button class="city-rm txt" type="button" data-lat="${c.lat}" data-lon="${c.lon}">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <div class="city-meta readable">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          ${c.country}
+        </div>
+        <div class="city-name readable-strong">${c.name}</div>
+        <div class="city-temp-row">
+          <div class="city-temp readable-strong" id="ct-${c.lat}-${c.lon}">--°</div>
+          <div class="txt" id="ci-${c.lat}-${c.lon}"></div>
+        </div>
+        <div class="city-desc readable" id="cd-${c.lat}-${c.lon}"></div>
+      </div>
+    </div>`).join("");
+
+  grid.querySelectorAll(".city-card").forEach(card=>{
+    card.addEventListener("click",()=>{
+      loadCoords(parseFloat(card.dataset.lat), parseFloat(card.dataset.lon));
+      window.scrollTo({top:0,behavior:"smooth"});
+    });
+  });
+  grid.querySelectorAll(".city-rm").forEach(btn=>{
+    btn.addEventListener("click",e=>{
+      e.stopPropagation();
+      rmCity(parseFloat(btn.dataset.lat), parseFloat(btn.dataset.lon));
+    });
+  });
+
+  const ac = document.getElementById(`cc-${curKey.replace(",","-")}`);
+  if(ac) ac.style.outline = `2px solid var(--accent)`;
+
+  for(const c of saved){
+    fw(c.lat,c.lon).then(w=>{
+      const te=document.getElementById(`ct-${c.lat}-${c.lon}`); if(te)te.textContent=Math.round(w.main.temp)+"°";
+      const ie=document.getElementById(`ci-${c.lat}-${c.lon}`); if(ie)ie.innerHTML=wIcon(w.weather?.[0]?.main,w.weather?.[0]?.icon,48);
+      const de=document.getElementById(`cd-${c.lat}-${c.lon}`); if(de)de.textContent=w.weather?.[0]?.description??"";
+    }).catch(()=>{});
+  }
+}
+function rmCity(lat,lon){
+  saved=saved.filter(c=>!(c.lat===lat&&c.lon===lon));
+  writeSaved(saved); renderDash(); updateSaveBtn();
+  toast("Removed from dashboard");
+}
+
+/* ════════════════════════════════════════════════════════
+   LOAD WEATHER
+════════════════════════════════════════════════════════ */
+async function loadCoords(lat,lon) {
+  document.getElementById("loading").style.display="flex";
+  document.getElementById("err").style.display="none";
+  const cont=document.getElementById("content");
+  cont.classList.remove("visible"); cont.classList.add("entering");
+  try {
+    const [w,fcast] = await Promise.all([fw(lat,lon), ff(lat,lon)]);
+    render(w,fcast); renderDash();
+  } catch(e) {
+    document.getElementById("loading").style.display="none";
+    document.getElementById("err").style.display="block";
+    document.getElementById("err-msg").textContent=e?.message??"Something went wrong";
+  }
+}
+
+function useLocation() {
+  if(!("geolocation" in navigator)){ 
+    toast("Geolocation unavailable","Search for a city instead."); 
+    loadCoords(51.5074,-0.1278); 
+    return; 
+  }
+  const btn=document.getElementById("loc-btn");
+  const inner=btn.querySelector(".glass-inner");
+  inner.innerHTML=`<div class="spin-ring" style="width:1rem;height:1rem;border-width:2px;flex-shrink:0;"></div><span>Locating…</span>`;
+  const reset=()=>{ inner.innerHTML=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span>My location</span>`; };
+
+  navigator.geolocation.getCurrentPosition(
+    async pos => { reset(); await loadCoords(pos.coords.latitude, pos.coords.longitude); },
+    async (error)  => { 
+      reset(); 
+      try {
+        const ip = await getIpLocation();
+        toast("Using IP location","Could not use precise geolocation, falling back to approximate IP-based location.");
+        await loadCoords(ip.latitude, ip.longitude);
+      } catch (e) {
+        toast("Location unavailable","Falling back to London as default location."); 
+        await loadCoords(51.5074,-0.1278); 
+      }
+    },
+    {timeout:8000,enableHighAccuracy:false}
+  );
+}
+
+/* ════════════════════════════════════════════════════════
+   SEARCH — buttery spring
+════════════════════════════════════════════════════════ */
+const sInput = document.getElementById("s-input");
+const sDrop  = document.getElementById("s-drop");
+
+function openDrop(results) {
+  sDrop.innerHTML = results.map((r,i)=>`
+    <button class="drop-item" data-i="${i}">
+      <div style="position:relative;z-index:3;display:flex;align-items:center;gap:.85rem;width:100%;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="opacity:.65;flex-shrink:0;"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        <div>
+          <div style="font-weight:600;">${r.name}</div>
+          <div class="drop-item-sub">${[r.state,r.country].filter(Boolean).join(", ")}</div>
+        </div>
+      </div>
+    </button>`).join("");
+  sDrop.classList.add("open");
+  sDrop.querySelectorAll(".drop-item").forEach((btn,i)=>{
+    btn.addEventListener("click",()=>{ closeDrop(); sInput.value=""; loadCoords(results[i].lat,results[i].lon); });
+  });
+}
+const closeDrop = () => sDrop.classList.remove("open");
+
+sInput.addEventListener("input",()=>{
+  clearTimeout(stimer);
+  const q=sInput.value.trim();
+  if(q.length<2){closeDrop();return;}
+  document.getElementById("s-spinner").style.display="flex";
+  stimer=setTimeout(async()=>{
+    const r=await geo(q);
+    document.getElementById("s-spinner").style.display="none";
+    if(r.length) openDrop(r); else closeDrop();
+  },280);
+});
+
+document.addEventListener("mousedown",e=>{
+  if(!document.getElementById("s-outer").contains(e.target)) closeDrop();
+});
+
+/* ════════════════════════════════════════════════════════
+   TOAST
+════════════════════════════════════════════════════════ */
+function toast(title, desc="") {
+  const root=document.getElementById("toasts");
+  const el=document.createElement("div");
+  el.className="toast glass glass-dense glass-shadow txt";
+  el.innerHTML=`<div class="toast-t">${title}</div>${desc?`<div class="toast-d">${desc}</div>`:""}`;
+  root.appendChild(el);
+  setTimeout(()=>{ el.classList.add("hide"); setTimeout(()=>el.remove(),320); },3200);
+}
+
+/* ════════════════════════════════════════════════════════
+   MENU & MODAL
+════════════════════════════════════════════════════════ */
+function openMenu() {
+  document.getElementById("menu-overlay").classList.add("open");
+  document.getElementById("menu-panel").classList.add("open");
+}
+
+function closeMenu() {
+  document.getElementById("menu-overlay").classList.remove("open");
+  document.getElementById("menu-panel").classList.remove("open");
+  document.getElementById("modal-overlay").classList.remove("open");
+}
+
+function closeModal() {
+  document.getElementById("modal-overlay").classList.remove("open");
+}
+
+function openModal(type) {
+  const body = document.getElementById("modal-body");
+  const overlay = document.getElementById("modal-overlay");
+  
+  const modals = {
+    about: {
+      title: "About Skycast Atlas",
+      content: `
+        <p class="modal-text">Skycast Atlas is a real-time weather forecast application that combines photorealistic sky simulations with accurate meteorological data.</p>
+        <div class="modal-section">
+          <div class="modal-section-title">Our Mission</div>
+          <p class="modal-text">We believe weather information should be beautiful and accessible. By blending artistic sky rendering with precise forecasts, we create an immersive experience that brings the atmosphere to life.</p>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Features</div>
+          <p class="modal-text">
+            • Real-time weather data and forecasts<br>
+            • Photorealistic sky animations based on weather conditions<br>
+            • Hourly and 5-day forecasts<br>
+            • Saved cities dashboard<br>
+            • Beautiful liquid glass UI<br>
+            • Mobile-optimized experience
+          </p>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Version</div>
+          <p class="modal-text">Skycast Atlas v1.0<br>Powered by OpenWeatherMap</p>
+        </div>
+      `
+    },
+    privacy: {
+      title: "Privacy Policy",
+      content: `
+        <div class="modal-section">
+          <div class="modal-section-title">Information We Collect</div>
+          <p class="modal-text">We only collect your location data when you explicitly grant permission through your browser. This data is used only to provide you with accurate local weather forecasts and is never stored on our servers.</p>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Data Usage</div>
+          <p class="modal-text">Your search queries and saved cities are stored locally on your device using browser storage. We do not collect, store, or share this information with third parties.</p>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Third-Party Services</div>
+          <p class="modal-text">We use OpenWeatherMap API to provide accurate weather data. Please review their privacy policy at openweathermap.org for details on how they handle data.</p>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Cookies</div>
+          <p class="modal-text">We do not use tracking cookies. Only essential local storage is used to enhance your experience.</p>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">Questions?</div>
+          <p class="modal-text">If you have any privacy concerns, please contact us at myprojectz.a1@gmail.com</p>
+        </div>
+      `
+    },
+    terms: {
+      title: "Terms & Conditions",
+      content: `
+        <div class="modal-section">
+          <div class="modal-section-title">1. Acceptance of Terms</div>
+          <p class="modal-text">By using Skycast Atlas, you agree to comply with these terms and conditions. If you do not agree, please do not use the service.</p>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">2. Service Description</div>
+          <p class="modal-text">Skycast Atlas provides weather forecasting and visualization services. Information is provided "as is" based on available data from OpenWeatherMap and meteorological sources.</p>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">3. Accuracy Disclaimer</div>
+          <p class="modal-text">While we strive for accuracy, weather forecasts are predictions and may not always be accurate. Please use additional sources for critical decisions.</p>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">4. User Responsibilities</div>
+          <p class="modal-text">You agree to use this service only for lawful purposes and not to interfere with the normal operation of the platform.</p>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">5. Limitation of Liability</div>
+          <p class="modal-text">We are not liable for any indirect, incidental, or consequential damages arising from the use of this service.</p>
+        </div>
+        <div class="modal-section">
+          <div class="modal-section-title">6. Changes to Terms</div>
+          <p class="modal-text">We reserve the right to modify these terms at any time. Continued use constitutes acceptance of any changes.</p>
+        </div>
+      `
+    }
+  };
+
+  const modal = modals[type];
+  if (!modal) return;
+
+  body.innerHTML = `<div class="modal-title">${modal.title}</div>${modal.content}`;
+  overlay.classList.add("open");
+}
+
+function openFeedback() {
+  const feedbackEmail = "myprojectz.a1@gmail.com";
+  const subject = encodeURIComponent("Skycast Atlas Feedback");
+  const body = encodeURIComponent("Hello,\n\nI have feedback about Skycast Atlas:\n\n[Please share your thoughts here]\n\nThank you!");
+  
+  window.location.href = `mailto:${feedbackEmail}?subject=${subject}&body=${body}`;
+  closeMenu();
+}
+
+// Close menu/modal when clicking overlay
+document.getElementById("menu-overlay").addEventListener("click", closeMenu);
+document.getElementById("modal-overlay").addEventListener("click", (e) => {
+  if (e.target === document.getElementById("modal-overlay")) closeModal();
+});
+
+/* ════════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════════ */
+function bindUiEvents() {
+  document.querySelector(".logo")?.addEventListener("click", openMenu);
+  document.querySelector(".menu-close")?.addEventListener("click", closeMenu);
+  document.querySelector(".modal-close")?.addEventListener("click", closeModal);
+  document.querySelectorAll(".menu-item[data-action]").forEach(item=>{
+    item.addEventListener("click",()=>{
+      const action=item.dataset.action;
+      if(action==="feedback") openFeedback(); else openModal(action);
+    });
+  });
+}
+
+document.getElementById("loc-btn").addEventListener("click", useLocation);
+document.getElementById("save-btn").addEventListener("click", toggleSave);
+bindUiEvents();
+
+saved = loadSaved();
+buildSky("clear-day");
+useLocation();
+</script>
+</body>
+</html>
